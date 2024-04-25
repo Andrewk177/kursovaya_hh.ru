@@ -2,100 +2,71 @@ import requests
 import json
 from abc import ABC, abstractmethod
 
-
 class AbstractVacancyAPI(ABC):
     @abstractmethod
-    def connect_to_api(self):
-        pass
-
-    @abstractmethod
     def get_vacancies(self, search_query):
         pass
-
 
 class HHRUVacancyAPI(AbstractVacancyAPI):
-    def connect_to_api(self):
-        pass
-
     def get_vacancies(self, search_query):
-        url = f"https://api.hh.ru/vacancies"
+        url = "https://api.hh.ru/vacancies"
         params = {"text": search_query, "area": "1"}
         response = requests.get(url, params=params)
-
-        if response.status_code == 200:
-            return response.json().get("items", [])
-        else:
-            return []
-
+        return response.json().get("items", []) if response.status_code == 200 else []
 
 class Vacancy:
     def __init__(self, title, link, salary, description):
         self.title = title
         self.link = link
-        self.salary = salary
+        self.salary = self.parse_salary(salary)
         self.description = description
 
-    def __eq__(self, other):
-        return self.salary == other.salary
+    @staticmethod
+    def parse_salary(salary_data):
+        if salary_data is None:
+            return "Salary not specified"
+        return f"{salary_data.get('from', 'N/A')} - {salary_data.get('to', 'N/A')} {salary_data.get('currency', '')}"
 
-    def __lt__(self, other):
-        return self.salary < other.salary
+class JSONFileManager:
+    def __init__(self, file_name="vacancies.json"):
+        self.file_name = file_name
 
-
-class FileManager(ABC):
-    @abstractmethod
     def add_vacancy_to_file(self, vacancy):
-        pass
-
-    @abstractmethod
-    def get_vacancies_from_file(self, criteria):
-        pass
-
-    @abstractmethod
-    def delete_vacancy_from_file(self, criteria):
-        pass
-
-
-class JSONFileManager(FileManager):
-    def add_vacancy_to_file(self, vacancy):
-        with open("vacancies.json", "a") as file:
+        with open(self.file_name, "a") as file:
             json.dump(vars(vacancy), file)
             file.write("\n")
 
-    def get_vacancies_from_file(self, criteria):
-        with open("vacancies.json", "r") as file:
-            vacancies = [json.loads(line) for line in file]
-            filtered_vacancies = [vacancy for vacancy in vacancies if criteria in vacancy.get("description", "")]
-            return filtered_vacancies
+    def get_vacancies_from_file(self):
+        with open(self.file_name, "r") as file:
+            return [json.loads(line) for line in file]
 
-    def delete_vacancy_from_file(self, criteria):
-        with open("vacancies.json", "r") as file:
+    def delete_vacancy_from_file(self, title):
+        with open(self.file_name, "r") as file:
             vacancies = [json.loads(line) for line in file]
-        with open("vacancies.json", "w") as file:
+        with open(self.file_name, "w") as file:
             for vacancy in vacancies:
-                if criteria not in vacancy.get("title", ""):
+                if vacancy['title'] != title:
                     json.dump(vacancy, file)
                     file.write("\n")
 
-
 def user_interaction():
-    search_query = input("Введите поисковый запрос: ")
     api = HHRUVacancyAPI()
+    search_query = input("Enter your search query: ")
     vacancies = api.get_vacancies(search_query)
 
     file_manager = JSONFileManager()
     for vacancy_data in vacancies:
-        vacancy = Vacancy(vacancy_data.get("имя"), vacancy_data.get("alternate_url"), vacancy_data.get("зарплата"),
-                          vacancy_data.get("описание"))
+        vacancy = Vacancy(vacancy_data['name'], vacancy_data['alternate_url'], vacancy_data['salary'], vacancy_data['snippet']['requirement'])
         file_manager.add_vacancy_to_file(vacancy)
 
     top_n = int(input("Введите количество вакансий для вывода в топ N: "))
-    sorted_vacancies = sorted(vacancies, key=lambda x: x.get("зарплата", 0), reverse=True)[:top_n]
+    sorted_vacancies = sorted(vacancies, key=lambda x: x['salary'], reverse=True)[:top_n]
     for idx, vacancy_data in enumerate(sorted_vacancies, start=1):
-        print(f"Вакансия {idx}: {vacancy_data.get('имя')} - Зарплата: {vacancy_data.get('зарплата')}")
+        print(f"Вакансия {idx}: {vacancy_data['name']} - Зарплата: {vacancy_data['salary']}")
 
     keyword = input("Введите ключевые слова для фильтрации вакансий: ").split()
-    filtered_vacancies = file_manager.get_vacancies_from_file(keyword)
+    filtered_vacancies = file_manager.get_vacancies_from_file()
     for vacancy in filtered_vacancies:
-        print(f"Отфильтрованные вакансии: {vacancy.get('название')} - Зарплата: {vacancy.get('зарплата')}")
+        if any(word in vacancy['description'] for word in keyword):
+            print(f"Отфильтрованные вакансии: {vacancy['title']} - Зарплата: {vacancy['salary']}")
 
