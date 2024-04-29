@@ -1,11 +1,12 @@
 import pytest
-from utils
+
+
 
 def test_get_vacancies():
     api = HHRUVacancyAPI()
     result = api.get_vacancies("Python")
-    assert isinstance(result, list)  # Check if the result is a list
-    assert all("name" in job for job in result)  # Check if each job has a 'name' key
+    assert isinstance(result, list)
+    assert all("name" in job for job in result)
 
 
 @pytest.fixture
@@ -25,3 +26,4 @@ def test_delete_vacancy(file_manager):
     file_manager.delete_vacancy_from_file("Test Job")
     vacancies = file_manager.get_vacancies_from_file()
     assert all(vacancy['title'] != "Test Job" for vacancy in vacancies)
+
