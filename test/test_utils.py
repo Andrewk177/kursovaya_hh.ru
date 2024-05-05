@@ -1,7 +1,6 @@
 import pytest
 
 
-
 def test_get_vacancies():
     api = HHRUVacancyAPI()
     result = api.get_vacancies("Python")
