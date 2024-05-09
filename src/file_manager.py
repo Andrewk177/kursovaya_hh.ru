@@ -1,5 +1,6 @@
 import json
 from api import HHRUVacancyAPI
+from vacancy import  Vacancy
 
 class JSONFileManager:
     def __init__(self, file_name="vacancies.json"):
