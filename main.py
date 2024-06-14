@@ -1,36 +1,37 @@
-from UserInteraction import UserInteraction
+from src.user_interaction import UserInteraction
 
 
 def main():
-    user_input = input("Please, write name\nof vacancy for search: ")
+    user_input = input("Введите название вакансии для поиска: ")
 
     while True:
-        users_salary = input("Text salary if you want\n"
-                             "to see vacancies with salary:\n")
+        users_salary = input("Укажите зарплату, если хотите\n"
+                             "увидеть вакансии с указанной зарплатой:\n")
         if users_salary.isdigit():
             break
-        print("\nPlease, text number or 'Enter...\n")
+        print("\nНеверный формат зарплаты. Введите целое число.")
 
     user = UserInteraction(user_input)
 
     while True:
-        users_city = input("Now, you need text your city:\n").capitalize()
+        users_city = input("Введите название города:\n").capitalize()
         if users_city.isalpha():
             break
-        print("\nI don't know about this city.\n")
+        print("\nНеверный формат города. Введите название с буквами.")
 
     user.sorted_salary(user.all_vacancy, int(users_salary), users_city)
     user.get_top_vacancies(user.sort_salary)
 
-    user.make_info(user.top_salary)
+    user.save_info()
 
     while True:
-        number_vacancy = input("Choose number of top vacancy\n"
-                               "if you want to see more: ")
+        number_vacancy = input('Введите номер топ вакансии\n'
+                               ', если вы хотите увидеть больше: ')
         if number_vacancy.isdigit():
             break
+        print("\nНеверный формат номера. Введите целое число.")
 
-    print(user.last_info(user.vacancies_list, number_vacancy))
+    print(user.last_info(user.vacancies_list, int(number_vacancy)))
 
 
 if __name__ == '__main__':

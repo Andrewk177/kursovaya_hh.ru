@@ -1,6 +1,6 @@
 import json
 import pytest
-from GetVacancies import GetVacancies
+from src.get_vacancies import GetVacancies
 
 def test_get_vacancy_from_api_valid_response():
     get_vacancies = GetVacancies("Software Developer")

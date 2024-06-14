@@ -1,5 +1,5 @@
 import pytest
-from UserInteraction import UserInteraction
+from src.user_interaction import UserInteraction
 
 
 @pytest.fixture

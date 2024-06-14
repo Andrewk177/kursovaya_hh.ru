@@ -2,10 +2,11 @@ import json
 from typing import Any
 import requests
 from config import DATA
-from AbstractHh import AbstractHh
+from src.abstract_hh import AbstractJSON
+from src.abstract_hh import JSONHandler
 
 
-class GetVacancies(AbstractHh):
+class GetVacancies(AbstractJSON):
     all = []
 
     def __init__(self, name_vacancy: str):
@@ -41,3 +42,11 @@ class GetVacancies(AbstractHh):
             with open(DATA, 'w', encoding='utf-8') as file:
                 file.write(json.dumps(self.all_vacancy, ensure_ascii=False))
             return self.all_vacancy
+
+
+class HeadHunterAPI(JSONHandler):
+    def save_vacancies_to_file(self, vacancies, file_path):
+        super().save_vacancies_to_file(vacancies, file_path)
+
+    def view_vacancies_from_file(self, file_path):
+        return super().view_vacancies_from_file(file_path)

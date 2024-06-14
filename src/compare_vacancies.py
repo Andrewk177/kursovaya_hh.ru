@@ -1,5 +1,6 @@
 from collections import defaultdict
-from GetVacancies import GetVacancies
+from src.get_vacancies import GetVacancies
+
 
 class CompareVacancies(GetVacancies):
     def __init__(self, name_vacancy: str):
@@ -33,3 +34,4 @@ class CompareVacancies(GetVacancies):
             return self.message
 
         return self.top_salary
+

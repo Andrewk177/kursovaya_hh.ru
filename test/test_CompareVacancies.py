@@ -1,5 +1,5 @@
 import pytest
-from CompareVacancies import CompareVacancies
+from src.compare_vacancies import CompareVacancies
 
 
 def test_get_top_vacancies():
